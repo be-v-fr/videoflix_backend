@@ -17,7 +17,7 @@ class LoginSerializer(serializers.Serializer):
             username = User.objects.get(email=attrs['email']).username
         except:
             raise serializers.ValidationError('Invalid credentials.')
-        auth_data = attrs.update(username=username)
+        attrs.update(username=username)
         user = authenticate(**attrs)
         if not user:
             raise serializers.ValidationError('Invalid credentials.')            
@@ -28,26 +28,28 @@ class LoginSerializer(serializers.Serializer):
         token, created = Token.objects.get_or_create(user=user)
         return get_auth_response_data(user=user, token=token)              
 
-class RegistrationSerializer(LoginSerializer):
+class RegistrationSerializer(serializers.Serializer):
     """
-    Serializer for user registration, with password validation and email.
+    Serializer for user registration, handling email and password validation.
     """
-    repeated_password = serializers.CharField(max_length=63, write_only=True)
+    email = serializers.EmailField(max_length=63)
+    password = serializers.CharField(max_length=63, write_only=True)
     
-    def validate(self, attrs):
-        if User.objects.filter(email=attrs['email']).exists():
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
             raise serializers.ValidationError('This email is already registered.')
-        validate_password(attrs['password'])
-        if attrs['repeated_password'] != attrs['password']:
-            raise serializers.ValidationError('Passwords do not match.')
-        attrs.pop('repeated_password')
-        return attrs
+        return value
+    
+    def validate_password(self, value):
+        validate_password(value)
+        return value
     
     def create(self, validated_data):
         created_user = User.objects.create_user(username='User', **validated_data)
         created_user.username += str(created_user.pk)
+        created_user.save()
         token = Token.objects.create(user=created_user)
-        return get_auth_response_data(user=created_user, token=token) 
+        return get_auth_response_data(user=created_user, token=token)
     
 # class UserSerializer(serializers.HyperlinkedModelSerializer):
 #     """

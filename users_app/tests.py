@@ -72,36 +72,23 @@ class AuthTests(APITestCase):
         
         Asserts:
             - 201 Created status.
+            - Username of new user is "User" plus primary key.
             - Absence of username in response data.
             - Presence of required fields in response data.
         """
         data = {
             'email': 'seconduser@mail.com',
             'password': 'testPassword123',
-            'repeated_password': 'testPassword123',
         }
         url = reverse('signup')
         response = self.client.post(url, data, format='json')
+        created_user = User.objects.get(email=response.data['email'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(created_user.username, 'User' + str(created_user.pk))
         self.assertNotIn('username', response.data)
         for key in ('token', 'email', 'user_id'):
             self.assertIn(key, response.data)
-            
-    def test_signup_passwords_do_not_match_bad_request(self):
-        """
-        Tests signup with non-matching passwords.
         
-        Asserts:
-            - 400 Bad request status.
-        """
-        data = {
-            'email': 'seconduser@mail.com',
-            'password': 'testPassword123',
-            'repeated_password': 'testPassword124',
-        }
-        url = reverse('signup')
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
     def test_signup_passwords_email_exists_bad_request(self):
         """
@@ -113,7 +100,6 @@ class AuthTests(APITestCase):
         data = {
             'email': self.user.email,
             'password': 'testPassword123',
-            'repeated_password': 'testPassword123',
         }
         url = reverse('signup')
         response = self.client.post(url, data, format='json')
