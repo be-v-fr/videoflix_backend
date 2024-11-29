@@ -82,7 +82,11 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = 'videoflix.asgi.application'
+
 WSGI_APPLICATION = 'videoflix.wsgi.application'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # Database

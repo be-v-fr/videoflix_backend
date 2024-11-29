@@ -1,12 +1,17 @@
+import os
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from rest_framework.authtoken.models import Token
+from .models import EmailConfirmation, PasswordReset
+
+os.environ.setdefault('FRONTEND_BASE_URL', 'http://localhost:4200/')
 
 class AuthTests(APITestCase):
     """
-    Base test setup class for creating test users, profiles, and tokens.
+    Base test setup class for creating test users, profiles, and authentication tokens.
     """    
     def setUp(self):
         """
@@ -104,3 +109,111 @@ class AuthTests(APITestCase):
         url = reverse('signup')
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+class PasswordResetTests(APITestCase):
+    def setUp(self):
+        AuthTests.setUp(self)
+        self.pw_reset_token = PasswordResetTokenGenerator().make_token(self.user)
+        self.pw_reset_obj = PasswordReset.objects.create(user=self.user, token=self.pw_reset_token)
+        
+    def test_request_ok(self):
+        """
+        Tests successful password reset request, creating a new token and replacing an existing one.
+        
+        Asserts:
+            - 200 OK status.
+            - Previous PasswordReset instance (containing the token) was deleted.
+        """
+        data = {
+            'email': self.user.email,
+        }
+        url = reverse('request-pw-reset')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(PasswordReset.objects.filter(user=self.user)), 1)
+        
+    def test_request_unregistered_email_ok(self):
+        """
+        Tests failing password reset request due to an unregistered email address.
+        For security reasons, the 200 OK status is sent nonetheless.
+        
+        Asserts:
+            - 200 OK status.
+            - Length of PasswordReset queryset is the same as before, i.e. no PasswordReset object was created.
+        """
+        queryset_count_before = PasswordReset.objects.count()
+        data = {
+            'email': 'nonexisting_user@mail.com',
+        }
+        url = reverse('request-pw-reset')
+        response = self.client.post(url, data, format='json')
+        queryset_count_after = PasswordReset.objects.count()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(queryset_count_before, queryset_count_after)
+        
+    def test_request_invalid_email_bad_request(self):
+        """
+        Tests failing password reset request due to an invalid email address.
+        
+        Asserts:
+            - 400 Bad request status.
+            - "email" key is in response.
+        """
+        data = {
+            'email': 'invalid@mail',
+        }
+        url = reverse('request-pw-reset')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('email', response.data)
+
+    def test_perform_reset_ok(self):
+        """
+        Tests successful password reset, using an existing token.
+        
+        Asserts:
+            - 200 OK status.
+            - PasswordReset instance (containing the token) was deleted.
+        """
+        data = {
+            'token': self.pw_reset_token,
+            'new_password': 'asd123asd123',
+        }
+        url = reverse('perform-pw-reset')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(PasswordReset.objects.filter(user=self.user)), 0)
+        
+    def test_perform_reset_invalid_token_bad_request(self):
+        """
+        Tests failing password reset, using an invalid token.
+        
+        Asserts:
+            - 400 Bad request status.
+            - "token" key is in response.
+        """
+        data = {
+            'token': '123456789abcdefg',
+            'new_password': 'asd123asd123',
+        }
+        url = reverse('perform-pw-reset')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('token', response.data)
+        
+    def test_perform_reset_weak_pw_bad_request(self):
+        """
+        Tests failing password reset, using an invalid password.
+        
+        Asserts:
+            - 400 Bad request status.
+            - "new_password" key is in response.
+        """
+        data = {
+            'token': self.pw_reset_token,
+            'new_password': 'asd123',
+        }
+        url = reverse('perform-pw-reset')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('new_password', response.data)

@@ -1,7 +1,8 @@
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import LoginSerializer, RegistrationSerializer
+from .serializers import LoginSerializer, RegistrationSerializer, RequestPasswordResetSerializer, PerformPasswordResetSerializer
 
 class LoginView(APIView):
     """
@@ -33,4 +34,37 @@ class RegistrationView(APIView):
         if serializer.is_valid():
             response_data = serializer.save()
             return Response(response_data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class RequestPasswordReset(APIView):
+    """
+    Handles password reset requests by creating a password reset object.
+    """
+    # permission_classes = []
+
+    def post(self, request):
+        """
+        Executes the password reset request logic.
+        """
+        serializer = RequestPasswordResetSerializer(data=request.data) 
+        if serializer.is_valid():
+            response_data = serializer.save()
+            return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+class PerformPasswordReset(APIView):
+    """
+    Performs password reset and deletes the corresponding password reset object.
+    """
+    # permission_classes = []
+
+    def post(self, request):
+        """
+        Executes the password reset logic.
+        """
+        serializer = PerformPasswordResetSerializer(data=request.data)
+        if serializer.is_valid():
+            response_data = serializer.save()
+            return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
