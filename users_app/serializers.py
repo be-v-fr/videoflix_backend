@@ -77,7 +77,7 @@ class RequestPasswordResetSerializer(serializers.Serializer):
             token = token_generator.make_token(user)
             new_reset_obj = PasswordReset(user=user, token=token)
             new_reset_obj.save()
-            reset_url = os.environ['FRONTEND_BASE_URL'] + 'pwReset/perform/' + token
+            reset_url = os.environ['FRONTEND_BASE_URL'] + 'auth/pwReset/perform/' + token
             send_password_reset_email(email_address=email, reset_url=reset_url)
         return {'success': 'We have sent you a link to reset your password.'}
     
