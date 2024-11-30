@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import timedelta
 from django.utils.timezone import now
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+import six
 
 class UserAction(models.Model):
     """
@@ -22,14 +24,24 @@ class UserAction(models.Model):
         expiration_time = self.created_at + timedelta(hours=24)
         return now() > expiration_time
 
+class AccountActivation(UserAction):
+    """
+    Email confirmation object including user emal and token.
+    """
+    pass
+
 class PasswordReset(UserAction):
     """
     Password reset object including user email and token.
     """
     pass
 
-class EmailConfirmation(UserAction):
+class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
     """
-    Email confirmation object including user emal and token.
+    Custom token generator for account activation for better stability and code readability.
     """
-    pass
+    def _make_hash_value(self, user, timestamp):
+        return (
+            six.text_type(user.pk) + six.text_type(timestamp) +
+            six.text_type(user.is_active)
+        )

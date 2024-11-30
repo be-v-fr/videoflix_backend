@@ -5,7 +5,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from rest_framework.authtoken.models import Token
-from .models import EmailConfirmation, PasswordReset
+from .models import AccountActivation, AccountActivationTokenGenerator, PasswordReset
 from datetime import timedelta
 
 os.environ.setdefault('FRONTEND_BASE_URL', 'http://localhost:4200/')
@@ -41,6 +41,23 @@ class AuthTests(APITestCase):
         self.assertNotIn('username', response.data)
         for key in ('token', 'email', 'user_id'):
             self.assertIn(key, response.data)
+            
+    def test_login_inactive_bad_request(self):
+        """
+        Tests login with inactive account.
+        
+        Asserts:
+            - 400 Bad request status.
+        """
+        data = {
+            'email': self.user.email,
+            'password': 'testpassword',
+        }
+        self.user.is_active = False
+        self.user.save()
+        url = reverse('login')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
     def test_login_false_password_bad_request(self):
         """
@@ -78,9 +95,10 @@ class AuthTests(APITestCase):
         
         Asserts:
             - 201 Created status.
+            - Created user is inactive.
+            - Account activation token was created.
             - Username of new user is "User" plus primary key.
-            - Absence of username in response data.
-            - Presence of required fields in response data.
+            - Absence of any token or user data in response.
         """
         data = {
             'email': 'seconduser@mail.com',
@@ -88,12 +106,13 @@ class AuthTests(APITestCase):
         }
         url = reverse('signup')
         response = self.client.post(url, data, format='json')
-        created_user = User.objects.get(email=response.data['email'])
+        created_user = User.objects.latest('pk')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertFalse(created_user.is_active)
+        self.assertTrue(AccountActivation.objects.filter(user=created_user).exists())
         self.assertEqual(created_user.username, 'User' + str(created_user.pk))
-        self.assertNotIn('username', response.data)
-        for key in ('token', 'email', 'user_id'):
-            self.assertIn(key, response.data)
+        for key in ('token', 'username', 'email', 'user_id'):
+            self.assertNotIn(key, response.data)
         
         
     def test_signup_passwords_email_exists_bad_request(self):
@@ -110,6 +129,83 @@ class AuthTests(APITestCase):
         url = reverse('signup')
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        
+class AccountActivationTests(APITestCase):
+    def setUp(self):
+        AuthTests.setUp(self)
+        self.user.is_active = False
+        self.user.save()
+        self.activation_token = AccountActivationTokenGenerator().make_token(self.user)
+        self.activation_obj = AccountActivation.objects.create(user=self.user, token=self.activation_token)
+        
+    def test_activate_ok(self):
+        """
+        Tests successful account activation, using an existing token.
+        
+        Asserts:
+            - 200 OK status.
+            - AccountActivation instance (containing the token) was deleted.
+        """
+        data = {
+            'token': self.activation_token,
+        }
+        url = reverse('activate-account')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(AccountActivation.objects.filter(user=self.user).exists())
+    
+    def test_activate_double_token_ok(self):
+        """
+        Tests successful account activation, using a double existing token.
+        
+        Asserts:
+            - 200 OK status.
+            - AccountActivation instance (containing the token) was deleted.
+        """
+        self.scnd_activation_obj = AccountActivation.objects.create(user=self.user, token=self.activation_token + 'a')        
+        data = {
+            'token': self.activation_token,
+        }
+        url = reverse('activate-account')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(AccountActivation.objects.filter(user=self.user).exists())
+        
+    def test_activate_invalid_token_bad_request(self):
+        """
+        Tests failing account activation, using an invalid token.
+        
+        Asserts:
+            - 400 Bad request status.
+            - "token" key is in response.
+        """
+        data = {
+            'token': '123456789abcdefg',
+        }
+        url = reverse('activate-account')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('token', response.data)
+        
+    def test_activate_expired_token_bad_request(self):
+        """
+        Tests failing account activation, using an expired token.
+        
+        Asserts:
+            - 400 Bad request status.
+            - "token" key is in response.
+            - Token was deleted.
+        """
+        self.activation_obj.created_at -= timedelta(hours=25)
+        self.activation_obj.save()
+        data = {
+            'token': self.activation_token,
+        }
+        url = reverse('activate-account')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('token', response.data)
+        self.assertFalse(AccountActivation.objects.filter(user=self.user).exists())
         
 class PasswordResetTests(APITestCase):
     def setUp(self):
@@ -183,7 +279,7 @@ class PasswordResetTests(APITestCase):
         url = reverse('perform-pw-reset')
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(PasswordReset.objects.filter(user=self.user)), 0)
+        self.assertFalse(PasswordReset.objects.filter(user=self.user).exists())
         
     def test_perform_reset_invalid_token_bad_request(self):
         """
@@ -221,7 +317,7 @@ class PasswordResetTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('token', response.data)
-        self.assertEqual(len(PasswordReset.objects.filter(user=self.user)), 0)
+        self.assertFalse(PasswordReset.objects.filter(user=self.user).exists())
         
     def test_perform_reset_weak_pw_bad_request(self):
         """

@@ -5,7 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
-from .models import EmailConfirmation, PasswordReset
+from .models import AccountActivation, PasswordReset, AccountActivationTokenGenerator
 from .utils import get_auth_response_data, send_password_reset_email, delete_existing_actions
 
 class LoginSerializer(serializers.Serializer):
@@ -17,13 +17,15 @@ class LoginSerializer(serializers.Serializer):
     
     def validate(self, attrs):
         try:
-            username = User.objects.get(email=attrs['email']).username
+            user = User.objects.get(email=attrs['email'])
         except User.DoesNotExist:
             raise serializers.ValidationError('Invalid credentials.')
-        attrs.update(username=username)
+        attrs.update(username=user.username)
         user = authenticate(**attrs)
         if not user:
-            raise serializers.ValidationError('Invalid credentials.')            
+            raise serializers.ValidationError('Invalid credentials.')
+        elif not user.is_active:
+            raise serializers.ValidationError('Your account is currently inactive. Please check your email.')         
         return attrs
     
     def create(self, validated_data):
@@ -50,17 +52,36 @@ class RegistrationSerializer(serializers.Serializer):
     def create(self, validated_data):
         created_user = User.objects.create_user(username='User', **validated_data)
         created_user.username += str(created_user.pk)
+        created_user.is_active = False
         created_user.save()
-        token = Token.objects.create(user=created_user)
-        return get_auth_response_data(user=created_user, token=token)
+        token_generator = AccountActivationTokenGenerator()
+        activation_token = token_generator.make_token(created_user)
+        AccountActivation.objects.create(user=created_user, token=activation_token)
+        return {'success': 'We have sent you a link to activate your password.'}
+
+class AccountActivationSerializer(serializers.Serializer):
+    """
+    Serializer for performing password resets.
+    """
+    token = serializers.CharField(write_only=True, required=True)
     
-# class UserSerializer(serializers.HyperlinkedModelSerializer):
-#     """
-#     Serializer for basic user information.
-#     """  
-#     class Meta:
-#         model = User
-#         fields = ['pk', 'email']
+    def validate_token(self, value):
+        try:
+            activation_obj = AccountActivation.objects.get(token=value)
+        except AccountActivation.DoesNotExist:
+            raise serializers.ValidationError('Invalid token.')
+        if activation_obj.is_token_expired():
+            activation_obj.user.delete()
+            raise serializers.ValidationError('Your token is expired. Please sign up again.')            
+        return value
+        
+    def create(self, validated_data):
+        activation_obj = AccountActivation.objects.get(token=validated_data['token'])
+        activation_obj.user.is_active = True
+        activation_obj.user.save()
+        for activation_obj in AccountActivation.objects.filter(user=activation_obj.user):
+            activation_obj.delete()
+        return {'success':'Account activated.'}
 
 class RequestPasswordResetSerializer(serializers.Serializer):
     """
@@ -75,8 +96,7 @@ class RequestPasswordResetSerializer(serializers.Serializer):
             delete_existing_actions(user=user, queryset=PasswordReset)
             token_generator = PasswordResetTokenGenerator()
             token = token_generator.make_token(user)
-            new_reset_obj = PasswordReset(user=user, token=token)
-            new_reset_obj.save()
+            PasswordReset.objects.create(user=user, token=token)
             reset_url = os.environ['FRONTEND_BASE_URL'] + 'auth/pwReset/perform/' + token
             send_password_reset_email(email_address=email, reset_url=reset_url)
         return {'success': 'We have sent you a link to reset your password.'}
@@ -108,5 +128,6 @@ class PerformPasswordResetSerializer(serializers.Serializer):
         reset_obj = PasswordReset.objects.get(token=validated_data['token'])
         reset_obj.user.set_password(new_password)
         reset_obj.user.save()
-        reset_obj.delete()
-        return {'success':'Password updated'}
+        for reset_obj in PasswordReset.objects.filter(user=reset_obj.user):
+            reset_obj.delete()
+        return {'success':'Password updated.'}
