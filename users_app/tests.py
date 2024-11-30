@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from rest_framework.authtoken.models import Token
 from .models import EmailConfirmation, PasswordReset
+from datetime import timedelta
 
 os.environ.setdefault('FRONTEND_BASE_URL', 'http://localhost:4200/')
 
@@ -200,6 +201,27 @@ class PasswordResetTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('token', response.data)
+        
+    def test_perform_reset_expired_token_bad_request(self):
+        """
+        Tests failing password reset, using an expired token.
+        
+        Asserts:
+            - 400 Bad request status.
+            - "token" key is in response.
+            - Token was deleted.
+        """
+        self.pw_reset_obj.created_at -= timedelta(hours=25)
+        self.pw_reset_obj.save()
+        data = {
+            'token': self.pw_reset_token,
+            'new_password': 'asd123asd123',
+        }
+        url = reverse('perform-pw-reset')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('token', response.data)
+        self.assertEqual(len(PasswordReset.objects.filter(user=self.user)), 0)
         
     def test_perform_reset_weak_pw_bad_request(self):
         """

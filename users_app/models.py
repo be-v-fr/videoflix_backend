@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import timedelta
+from django.utils.timezone import now
 
 class UserAction(models.Model):
     """
@@ -11,9 +13,14 @@ class UserAction(models.Model):
     
     class Meta:
         abstract = True
+        unique_together = ('token', 'user')
         
     def __str__(self):
-        return f"{self.user.email} ({self.created_at})"   
+        return f"{self.user.email} ({self.created_at})"
+
+    def is_token_expired(self):
+        expiration_time = self.created_at + timedelta(hours=24)
+        return now() > expiration_time
 
 class PasswordReset(UserAction):
     """

@@ -98,6 +98,9 @@ class PerformPasswordResetSerializer(serializers.Serializer):
             reset_obj = PasswordReset.objects.get(token=value)
         except PasswordReset.DoesNotExist:
             raise serializers.ValidationError('Invalid token.')
+        if reset_obj.is_token_expired():
+            reset_obj.delete()
+            raise serializers.ValidationError('Your token is expired.')            
         return value
         
     def create(self, validated_data):
