@@ -14,6 +14,7 @@ def delete_video(sender, instance, *args, **kwargs):
     if instance.file:
         if os.path.isfile(instance.file.path):
             os.remove(instance.file.path)
+            # add / replace different video resolution files later
     if instance.thumbnail:
         if os.path.isfile(instance.thumbnail.path):
             os.remove(instance.thumbnail.path)
