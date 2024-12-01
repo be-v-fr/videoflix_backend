@@ -35,7 +35,3 @@ def send_password_reset_email(email_address, reset_url):
         [email_address],
         fail_silently=False,
     )
-    
-def delete_existing_actions(user, queryset):
-    for existing_action in queryset.objects.filter(user=user):
-        existing_action.delete()

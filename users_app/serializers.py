@@ -6,7 +6,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from .models import AccountActivation, PasswordReset, AccountActivationTokenGenerator
-from .utils import get_auth_response_data, send_account_activation_email, send_password_reset_email, delete_existing_actions
+from .utils import get_auth_response_data, send_account_activation_email
 
 class LoginSerializer(serializers.Serializer):
     """
@@ -81,7 +81,7 @@ class AccountActivationSerializer(serializers.Serializer):
         activation_obj = AccountActivation.objects.get(token=validated_data['token'])
         activation_obj.user.is_active = True
         activation_obj.user.save()
-        delete_existing_actions(user=activation_obj.user, queryset=AccountActivation)
+        AccountActivation.delete_all_for_user(user=activation_obj.user)
         return {'success':'Account activated.'}
 
 class RequestPasswordResetSerializer(serializers.Serializer):
@@ -94,12 +94,10 @@ class RequestPasswordResetSerializer(serializers.Serializer):
         email = validated_data['email']
         user = User.objects.filter(email__iexact=email).first()
         if user:
-            delete_existing_actions(user=user, queryset=PasswordReset)
+            PasswordReset.delete_all_for_user(user=user)
             token_generator = PasswordResetTokenGenerator()
             token = token_generator.make_token(user)
-            PasswordReset.objects.create(user=user, token=token)
-            reset_url = os.environ['FRONTEND_BASE_URL'] + 'auth/pwReset/perform/' + token
-            send_password_reset_email(email_address=email, reset_url=reset_url)
+            PasswordReset.create_with_email(user=user, token=token)
         return {'success': 'We have sent you a link to reset your password.'}
     
     
@@ -129,5 +127,5 @@ class PerformPasswordResetSerializer(serializers.Serializer):
         reset_obj = PasswordReset.objects.get(token=validated_data['token'])
         reset_obj.user.set_password(new_password)
         reset_obj.user.save()
-        delete_existing_actions(user=reset_obj.user, queryset=PasswordReset)
+        PasswordReset.delete_all_for_user(user=reset_obj.user)
         return {'success':'Password updated.'}
