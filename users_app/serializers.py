@@ -2,10 +2,9 @@ import os
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
-from .models import AccountActivation, PasswordReset, AccountActivationTokenGenerator
+from .models import AccountActivation, PasswordReset
 from .utils import get_auth_response_data
 
 class LoginSerializer(serializers.Serializer):
