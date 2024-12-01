@@ -2,7 +2,6 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
 from .models import Video
 import os
-from pathlib import Path
 
 @receiver(post_save, sender=Video) 
 def create_video(sender, instance, created, **kwargs):
