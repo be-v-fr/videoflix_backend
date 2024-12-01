@@ -6,7 +6,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from .models import AccountActivation, PasswordReset, AccountActivationTokenGenerator
-from .utils import get_auth_response_data, send_account_activation_email
+from .utils import get_auth_response_data
 
 class LoginSerializer(serializers.Serializer):
     """
@@ -54,11 +54,7 @@ class RegistrationSerializer(serializers.Serializer):
         created_user.username += str(created_user.pk)
         created_user.is_active = False
         created_user.save()
-        token_generator = AccountActivationTokenGenerator()
-        activation_token = token_generator.make_token(created_user)
-        AccountActivation.objects.create(user=created_user, token=activation_token)
-        activation_url = os.environ['FRONTEND_BASE_URL'] + 'auth/signup/activate/' + activation_token
-        send_account_activation_email(created_user.email, activation_url)
+        AccountActivation.create_with_email(user=created_user)
         return {'success': 'We have sent you a link to activate your password.'}
 
 class AccountActivationSerializer(serializers.Serializer):
@@ -95,9 +91,7 @@ class RequestPasswordResetSerializer(serializers.Serializer):
         user = User.objects.filter(email__iexact=email).first()
         if user:
             PasswordReset.delete_all_for_user(user=user)
-            token_generator = PasswordResetTokenGenerator()
-            token = token_generator.make_token(user)
-            PasswordReset.create_with_email(user=user, token=token)
+            PasswordReset.create_with_email(user=user)
         return {'success': 'We have sent you a link to reset your password.'}
     
     
