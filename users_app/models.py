@@ -50,7 +50,7 @@ class UserAction(models.Model):
 
 class AccountActivation(UserAction):
     """
-    Email confirmation object including user emal and token.
+    Account activation model including user email and token.
     """
     @classmethod
     def create_with_email(cls, user):
@@ -61,7 +61,7 @@ class AccountActivation(UserAction):
 
 class PasswordReset(UserAction):
     """
-    Password reset object including user email and token.
+    Password reset model including user email and token.
     """
     @classmethod
     def create_with_email(cls, user):
