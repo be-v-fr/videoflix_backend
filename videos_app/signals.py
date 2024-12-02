@@ -16,10 +16,11 @@ def create_video(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=Video) 
 def delete_video(sender, instance, *args, **kwargs):
     if instance.file:
-        if os.path.isfile(instance.file.path):
-            for res in RESOLUTIONS:
-                res_path = add_suffix_to_filename(instance.file.path, f'_{res}p')
+        for res in RESOLUTIONS:
+            res_path = add_suffix_to_filename(instance.file.path, f'_{res}p')
+            if os.path.isfile(res_path):
                 os.remove(res_path)
+        if os.path.isfile(instance.file.path):
             os.remove(instance.file.path)
     if instance.thumbnail:
         if os.path.isfile(instance.thumbnail.path):
