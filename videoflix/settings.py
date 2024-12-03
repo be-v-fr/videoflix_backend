@@ -97,6 +97,8 @@ CACHES = {
     }
 }
 
+CACHE_TTL = 60 * 15
+
 ROOT_URLCONF = 'videoflix.urls'
 
 TEMPLATES = [
