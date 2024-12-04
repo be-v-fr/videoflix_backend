@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'django_rq',
     'users_app',
     'videos_app.apps.VideosAppConfig',
 ]
@@ -175,3 +176,17 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Django RQ configuration
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': 360,
+        'REDIS_CLIENT_KWARGS': {    # Eventual additional Redis connection arguments
+            'ssl_cert_reqs': None,
+        },
+    }
+}
