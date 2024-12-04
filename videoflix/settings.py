@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os, sys
 from pathlib import Path
+from secret_keys import REDIS_PW
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -185,8 +186,6 @@ RQ_QUEUES = {
         'PORT': 6379,
         'DB': 0,
         'DEFAULT_TIMEOUT': 360,
-        'REDIS_CLIENT_KWARGS': {    # Eventual additional Redis connection arguments
-            'ssl_cert_reqs': None,
-        },
+        'PASSWORD': REDIS_PW,
     }
 }
