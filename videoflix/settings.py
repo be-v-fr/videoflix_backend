@@ -20,8 +20,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
-
 TESTING = 'test' in sys.argv
 
 # Quick-start development settings - unsuitable for production
@@ -63,7 +61,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'django_rq',
-    'import_export',
     'users_app',
     'videos_app.apps.VideosAppConfig',
 ]
@@ -192,7 +189,3 @@ RQ_QUEUES = {
         'PASSWORD': REDIS_PW,
     }
 }
-
-# Import export configuration
-
-IMPORT_EXPORT_USE_TRANSACTIONS = True
