@@ -1,5 +1,6 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
+import django_rq
 from .models import Video
 from .tasks import convert_video_quality
 from .utils import add_suffix_to_filename
@@ -11,7 +12,8 @@ RESOLUTIONS = (480, 720, 1080)
 def create_video(sender, instance, created, **kwargs):
     if created:
         for res in RESOLUTIONS:
-            convert_video_quality(instance.file.path, resolution_in_p=res)
+            queue = django_rq.get_queue('default', autocommit=True)
+            queue.enqueue(convert_video_quality, kwargs={'source': instance.file.path, 'resolution_in_p': res})
 
 @receiver(post_delete, sender=Video) 
 def delete_video(sender, instance, *args, **kwargs):
