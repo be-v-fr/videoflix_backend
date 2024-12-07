@@ -102,6 +102,7 @@ if not TESTING:
             'BACKEND': 'django_redis.cache.RedisCache',
             'LOCATION': 'redis://127.0.0.1:6379/1',
             'OPTIONS': {
+                'PASSWORD': REDIS_PW,
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient'
             },
             'KEY_PREFIX': 'videoflix'
