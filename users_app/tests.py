@@ -16,7 +16,7 @@ class AuthTests(APITestCase):
     """    
     def setUp(self):
         """
-        Creates a customer and business user, with associated profiles and authentication tokens.
+        Creates a user and an associated authentication token.
         """
         self.user = User.objects.create_user(username='testuser', email='testemail@email.com', password='testpassword')
         self.token = Token.objects.create(user=self.user)
