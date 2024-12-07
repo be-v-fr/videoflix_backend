@@ -36,7 +36,7 @@ class VideosTests(APITestCase):
         url = reverse('video-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for key in ('title', 'description', 'created_at', 'file', 'thumbnail'):
+        for key in ('id', 'title', 'description', 'created_at', 'file', 'thumbnail'):
             self.assertIn(key, response.data[0])
             
     def test_get_video_list_not_authenticated_unauthorized(self):
@@ -62,7 +62,7 @@ class VideosTests(APITestCase):
         url = reverse('video-detail', kwargs={'pk': self.mock_video.pk})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for key in ('title', 'description', 'created_at', 'file', 'thumbnail'):
+        for key in ('id', 'title', 'description', 'created_at', 'file', 'thumbnail'):
             self.assertIn(key, response.data)
         
     def test_get_video_detail_not_authenticated_unauthorized(self):

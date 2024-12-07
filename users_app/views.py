@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import LoginSerializer, RegistrationSerializer, AccountActivationSerializer
@@ -8,7 +8,8 @@ class LoginView(APIView):
     """
     API endpoint for user login.
     """
-    # permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         """
@@ -24,7 +25,8 @@ class RegistrationView(APIView):
     """
     API endpoint for user registration.
     """
-    # permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         """
@@ -40,7 +42,8 @@ class ActivateAccount(APIView):
     """
     Performs account activation and deletes the corresponding account activation object.
     """
-    # permission_classes = []
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         """
@@ -56,7 +59,8 @@ class RequestPasswordReset(APIView):
     """
     Handles password reset requests by creating a password reset object.
     """
-    # permission_classes = []
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         """
@@ -73,7 +77,8 @@ class PerformPasswordReset(APIView):
     """
     Performs password reset and deletes the corresponding password reset object.
     """
-    # permission_classes = []
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         """
