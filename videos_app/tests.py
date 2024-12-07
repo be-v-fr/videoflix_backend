@@ -7,7 +7,6 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework.authtoken.models import Token
 from .models import Video
 
-# Create your tests here.
 class VideosTests(APITestCase):
     def setUp(self):
         cache.clear()
