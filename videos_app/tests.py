@@ -16,10 +16,11 @@ class VideosTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         self.mock_video_file = SimpleUploadedFile("mock_video.mp4", b"this is not a video file!")
         self.mock_thumb_file = SimpleUploadedFile("mock_thumb.webp", b"this is not an image file!")
-        self.mock_video = Video.objects.create(title='testtitle',
-                                          description='testdescription',
-                                          file=self.mock_video_file,
-                                          thumbnail=self.mock_thumb_file)
+        self.mock_video = Video.objects.create(
+            title='testtitle',
+            description='testdescription',
+            file=self.mock_video_file,
+            thumbnail=self.mock_thumb_file)
         
     def tearDown(self):
         cache.clear()        
