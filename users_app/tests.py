@@ -206,6 +206,51 @@ class AccountActivationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('token', response.data)
         self.assertFalse(AccountActivation.objects.filter(user=self.user).exists())
+
+class UserTests(APITestCase):
+    def setUp(self):
+        AuthTests.setUp(self=self)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+      
+    def test_get_user_ok(self):
+        """
+        Tests user retrieval by token.
+        
+        Asserts:
+            - 200 OK status.
+            - Username is not in response.
+            - Required fields are in response.
+        """
+        url = reverse('user')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('username', response.data)
+        for key in ('id', 'email'):
+            self.assertIn(key, response.data)
+            
+    def test_get_user_invalid_token(self):
+        """
+        Tests failing user retrieval by invalid token.
+        
+        Asserts:
+            - 401 unauthorized status.
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + 'invalidtokenkey')
+        url = reverse('user')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
+    def test_get_user_missing_token(self):
+        """
+        Tests failing user retrieval without any token.
+        
+        Asserts:
+            - 401 unauthorized status.
+        """
+        self.client.logout()
+        url = reverse('user')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         
 class PasswordResetTests(APITestCase):
     def setUp(self):

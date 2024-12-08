@@ -54,6 +54,11 @@ class RegistrationSerializer(serializers.Serializer):
         created_user.save()
         AccountActivation.create_with_email(user=created_user)
         return {'success': 'We have sent you a link to activate your password.'}
+    
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email']
 
 class AccountActivationSerializer(serializers.Serializer):
     """
