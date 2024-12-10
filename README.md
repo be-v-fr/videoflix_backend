@@ -1,11 +1,10 @@
-=====
 SETUP
 =====
+- Install FFMPEG
 - Install Redis
 - Activate "requirepass" in Redis configuration file
 - Create "secret_keys.py" file in project folder and save your Redis password as "REDIS_PW"
 
-========
 COMMANDS
 ========
 - Start worker in Windows:
