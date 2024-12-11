@@ -19,7 +19,7 @@ class VideosTests(APITestCase):
         self.mock_video = Video.objects.create(
             title='testtitle',
             description='testdescription',
-            file=self.mock_video_file,
+            video_upload=self.mock_video_file,
             thumbnail=self.mock_thumb_file)
         
     def tearDown(self):
@@ -31,12 +31,14 @@ class VideosTests(APITestCase):
         
         Asserts:
             - 200 OK status.
+            - Absence of file field.
             - Presence of all model fields in response data.
         """
         url = reverse('video-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for key in ('id', 'title', 'description', 'created_at', 'file', 'thumbnail'):
+        self.assertNotIn('file', response.data)
+        for key in ('id', 'title', 'description', 'created_at', 'video_files_dir', 'thumbnail'):
             self.assertIn(key, response.data[0])
             
     def test_get_video_list_not_authenticated_unauthorized(self):
@@ -57,12 +59,14 @@ class VideosTests(APITestCase):
         
         Asserts:
             - 200 OK status.
-            - Presence of all model fields in response data.
+            - Absence of file field.
+            - Presence of all required fields in response data.
         """
         url = reverse('video-detail', kwargs={'pk': self.mock_video.pk})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for key in ('id', 'title', 'description', 'created_at', 'file', 'thumbnail'):
+        self.assertNotIn('file', response.data)
+        for key in ('id', 'title', 'description', 'created_at', 'video_files_dir', 'thumbnail'):
             self.assertIn(key, response.data)
         
     def test_get_video_detail_not_authenticated_unauthorized(self):

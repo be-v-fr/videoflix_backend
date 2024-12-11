@@ -16,9 +16,9 @@ def create_video(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=Video) 
 def delete_video(sender, instance, *args, **kwargs):
     delete_source_video(instance)
-    videos_dir = instance.get_videos_dir()
-    if os.path.isdir(videos_dir):
-        shutil.rmtree(videos_dir)
+    video_files_dir = instance.video_files_dir()
+    if os.path.isdir(video_files_dir):
+        shutil.rmtree(video_files_dir)
     if instance.thumbnail:
         if os.path.isfile(instance.thumbnail.path):
             os.remove(instance.thumbnail.path)
