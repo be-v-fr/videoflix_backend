@@ -13,5 +13,13 @@ class Video(models.Model):
     thumbnail = models.FileField(upload_to='video_thumbs', blank=True, null=True)
 
     @property
-    def video_files_dir(self):
-        return os.path.join(settings.MEDIA_ROOT, 'videos', f'{self.pk}_{self.title}')
+    def video_files_rel_dir(self):
+        return os.path.join('videos', f'{self.pk}_{self.title}')
+
+    @property
+    def video_files_abs_dir(self):
+        return os.path.join(settings.MEDIA_ROOT, self.video_files_rel_dir)
+    
+    @property
+    def video_files_rel_url(self):
+        return os.path.join(settings.MEDIA_URL, self.video_files_rel_dir)
