@@ -21,5 +21,8 @@ class Video(models.Model):
         return os.path.join(settings.MEDIA_ROOT, self.video_files_rel_dir)
     
     @property
-    def video_files_rel_url(self):
-        return os.path.join(settings.MEDIA_URL, self.video_files_rel_dir)
+    def playlist_rel_url(self):
+        filename = f'{self.pk}_master.m3u8'
+        if os.path.isfile(os.path.join(self.video_files_abs_dir, filename)):
+            return os.path.join(settings.MEDIA_URL, self.video_files_rel_dir, filename)
+        raise FileNotFoundError(f"Playlist file '{filename}' does not exist in directory for video ID {self.pk}.")

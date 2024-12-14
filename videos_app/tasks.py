@@ -1,20 +1,39 @@
 import os
 import subprocess
-from .utils import generate_video_conversion_cmd, delete_source_video
+from .utils import generate_playlist_basename, generate_single_resolution_cmd, delete_source_video
 
-RESOLUTIONS = (480, 720, 1080)
+RESOLUTIONS = [
+    {"width": 1920, "height": 1080, "bitrate": 5000},
+    {"width": 1280, "height": 720, "bitrate": 3000},
+    {"width": 854, "height": 480, "bitrate": 1500}
+]
+
+def create_master_playlist(video_obj):
+    """
+    Combines multiple HLS playlist files into a single master playlist.
+
+    :param playlists: List of dictionaries with 'file' (playlist path) and 'resolution' (e.g., "480p").
+    :param output_file: Path to the output master playlist file.
+    """
+    master_playlist_lines = ["#EXTM3U", "#EXT-X-VERSION:3"]
+    resolution_lookup = {f"{res['height']}p": res['bitrate'] * 1000 for res in RESOLUTIONS}
+    for res in RESOLUTIONS:
+        resolution = f'{res['height']}p'
+        playlist_filename = f'{generate_playlist_basename(video_obj, res['height'])}.m3u8'
+        bandwidth = resolution_lookup.get(resolution, 1000000)
+        master_playlist_lines.append(
+            f"#EXT-X-STREAM-INF:BANDWIDTH={bandwidth},RESOLUTION={resolution}"
+        )
+        master_playlist_lines.append(playlist_filename)
+    output_file = f'{video_obj.video_files_abs_dir}/{video_obj.pk}_master.m3u8'
+    with open(output_file, "w") as f:
+        f.write("\n".join(master_playlist_lines) + "\n")
 
 def convert_video_to_hls(video_obj):
     os.makedirs(video_obj.video_files_abs_dir, exist_ok=True)
-    for resolution in RESOLUTIONS:
-        convert_video_to_single_resolution_hls(video_obj, resolution)
-    delete_source_video(video_obj)
-
-def convert_video_to_single_resolution_hls(video_obj, resolution):
-    target = os.path.join(video_obj.video_files_abs_dir, f"{video_obj.id}_{resolution}p")
-    cmd = generate_video_conversion_cmd(
-        source=video_obj.video_upload.path,
-        target=target,
-        resolution=resolution
-    )
+    cmd = ["ffmpeg", "-i", video_obj.video_upload.path]
+    for i, res in enumerate(RESOLUTIONS):
+        cmd.extend(generate_single_resolution_cmd(video_obj=video_obj, index=i, resolution=res))
     subprocess.run(cmd, capture_output=True, check=True)
+    create_master_playlist(video_obj)
+    delete_source_video(video_obj)

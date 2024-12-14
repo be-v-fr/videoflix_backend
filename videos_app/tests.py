@@ -29,7 +29,15 @@ class VideosTests(APITestCase):
             title='testtitle',
             description='testdescription',
             video_upload=self.mock_video_file,
-            thumbnail=self.mock_thumb_file)      
+            thumbnail=self.mock_thumb_file)
+        self.create_mock_playlist()
+
+    def create_mock_playlist(self):
+        video_dir = os.path.join(self.temp_dir.name, 'videos', f'{self.mock_video.pk}_testtitle')
+        os.makedirs(video_dir, exist_ok=True)
+        playlist_path = os.path.join(video_dir, f'{self.mock_video.pk}_master.m3u8')
+        with open(playlist_path, 'w') as f:
+            f.write("this is not a playlist file!")
         
     def tearDown(self):
         self.override_settings.disable()
@@ -49,7 +57,7 @@ class VideosTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn('file', response.data)
-        for key in ('id', 'title', 'description', 'created_at', 'video_files_url', 'thumbnail'):
+        for key in ('id', 'title', 'description', 'created_at', 'playlist_url', 'thumbnail'):
             self.assertIn(key, response.data[0])
             
     def test_get_video_list_not_authenticated_unauthorized(self):
@@ -77,7 +85,7 @@ class VideosTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn('file', response.data)
-        for key in ('id', 'title', 'description', 'created_at', 'video_files_url', 'thumbnail'):
+        for key in ('id', 'title', 'description', 'created_at', 'playlist_url', 'thumbnail'):
             self.assertIn(key, response.data)
         
     def test_get_video_detail_not_authenticated_unauthorized(self):
