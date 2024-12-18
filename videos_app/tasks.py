@@ -3,9 +3,10 @@ import subprocess
 from .utils import generate_playlist_basename, generate_single_resolution_cmd, delete_source_video
 
 RESOLUTIONS = [
-    {"width": 1920, "height": 1080, "bitrate": 5000},
-    {"width": 1280, "height": 720, "bitrate": 3000},
-    {"width": 854, "height": 480, "bitrate": 1500}
+    { "width": 213, "height": 120, "bitrate": 350 },
+    { "width": 640, "height": 360, "bitrate": 1000 },
+    { "width": 1280, "height": 720, "bitrate": 3000 },
+    { "width": 1920, "height": 1080, "bitrate": 5000 }
 ]
 
 def create_master_playlist(video_obj):
