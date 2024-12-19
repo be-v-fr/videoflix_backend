@@ -1,5 +1,6 @@
 import os
 import subprocess
+import re
 from .utils import generate_playlist_basename, generate_single_resolution_cmd, delete_source_video
 
 RESOLUTIONS = [
@@ -8,6 +9,19 @@ RESOLUTIONS = [
     { "width": 1280, "height": 720, "bitrate": 3000 },
     { "width": 1920, "height": 1080, "bitrate": 5000 }
 ]
+
+def set_video_duration(video_obj):
+    cmd = ["ffmpeg", "-i", video_obj.video_upload.path]
+    result = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True, text=True)
+    output = result.stderr
+    match = re.search(r"Duration: (\d+):(\d+):(\d+\.\d+)", output)
+    if match:
+        hours, minutes, seconds = map(float, match.groups())
+        total_seconds = hours * 3600 + minutes * 60 + seconds
+        video_obj.duration_in_seconds = total_seconds
+        video_obj.save()
+    else:
+        raise ValueError("Video duration output from FFMPEG received in wrong format.")
 
 def create_master_playlist(video_obj):
     """

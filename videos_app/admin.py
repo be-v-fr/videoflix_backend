@@ -7,7 +7,9 @@ class VideoResource(resources.ModelResource):
     
     class Meta:
         model = Video
+        exclude = ('duration_in_seconds',)
 
 @admin.register(Video)
 class VideoAdmin(ImportExportModelAdmin):
-    pass
+     resource_class = VideoResource
+     readonly_fields = ('duration_in_seconds',)

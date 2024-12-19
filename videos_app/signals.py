@@ -3,7 +3,7 @@ from django.db.models.signals import post_save, post_delete
 import django_rq
 from .models import Video
 from .utils import delete_source_video
-from .tasks import convert_video_to_hls
+from .tasks import set_video_duration, convert_video_to_hls
 import os
 import shutil
 
@@ -11,6 +11,7 @@ import shutil
 def create_video(sender, instance, created, **kwargs):
     if created:
         queue = django_rq.get_queue('default', autocommit=True)
+        queue.enqueue(set_video_duration, video_obj=instance)
         queue.enqueue(convert_video_to_hls, video_obj=instance)
 
 @receiver(post_delete, sender=Video) 

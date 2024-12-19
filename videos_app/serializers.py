@@ -6,7 +6,7 @@ class VideoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Video
-        fields = ['id', 'title', 'description', 'created_at', 'playlist_url', 'thumbnail']
+        fields = ['id', 'title', 'description', 'created_at', 'playlist_url', 'duration_in_seconds', 'thumbnail']
 
     def get_playlist_url(self, obj):
         request = self.context.get('request')
