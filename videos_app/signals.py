@@ -11,8 +11,11 @@ import shutil
 def create_video(sender, instance, created, **kwargs):
     if created:
         queue = django_rq.get_queue('default', autocommit=True)
-        queue.enqueue(set_video_duration, video_obj=instance)
-        queue.enqueue(convert_video_to_hls, video_obj=instance)
+        try:
+            duration_task = queue.enqueue(set_video_duration, video_obj=instance)
+            queue.enqueue(convert_video_to_hls, video_obj=instance, depends_on=duration_task)
+        except Exception as e:
+            print("Error while executing tasks on video creation:", e)
 
 @receiver(post_delete, sender=Video) 
 def delete_video(sender, instance, *args, **kwargs):
