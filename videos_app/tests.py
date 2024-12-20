@@ -6,7 +6,7 @@ from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from rest_framework.authtoken.models import Token
-from .models import Video
+from .models import Video, VideoCompletion
 import os
 import tempfile
 
@@ -100,3 +100,174 @@ class VideosTests(APITestCase):
         url = reverse('video-detail', kwargs={'pk': self.mock_video.pk})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class VideoCompletionTests(APITestCase):
+    def generate_create_data(self):
+        return {
+            'video_id': self.mock_video.pk,
+            'current_time': 2.34
+        }
+
+    def create_temp_dir(self):
+        VideosTests.create_temp_dir(self=self)
+
+    def setUp(self):
+        VideosTests.setUp(self=self)
+        self.different_user = User.objects.create_user(username='testuser2', email='testemail2@email.com', password='testpassword')
+        self.video_completion = VideoCompletion.objects.create(
+            user=self.user,
+            **self.generate_create_data()
+        )
+
+    def create_mock_playlist(self):
+        VideosTests.create_mock_playlist(self=self)
+        
+    def tearDown(self):
+        VideosTests.tearDown(self=self)  
+
+    def test_get_video_completion_list_ok(self):
+        """
+        Tests video completions list view GET request.
+        
+        Asserts:
+            - 200 OK status.
+            - Absence of user field in response data.
+            - Presence of all serializer fields in response data.
+        """
+        url = reverse('video-completion-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('user', response.data[0])
+        for key in ('id', 'video_id', 'current_time', 'updated_at'):
+            self.assertIn(key, response.data[0])
+
+    def test_get_video_completion_list_different_user_ok(self):
+        """
+        Tests video completions list view GET request when the video completion
+        object is not assigned to the active user.
+        
+        Asserts:
+            - 200 OK status.
+            - Empty response.
+        """
+        self.video_completion.user = self.different_user
+        self.video_completion.save()
+        url = reverse('video-completion-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def test_get_video_completion_list_not_authenticated_unauthorized(self):
+        """
+        Tests video completions list view GET request without credentials.
+        
+        Asserts:
+            - 401 Unauthorized status.
+        """
+        self.client.logout()
+        url = reverse('video-completion-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_video_completion_detail_ok(self):
+        """
+        Tests video completions detail view GET request.
+        
+        Asserts:
+            - 200 OK status.
+            - Absence of user field in response data.
+            - Presence of all serializer fields in response data.
+        """
+        url = reverse('video-completion-detail', kwargs={'pk': self.video_completion.pk})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('user', response.data)
+        for key in ('id', 'video_id', 'current_time', 'updated_at'):
+            self.assertIn(key, response.data)
+
+    def test_get_video_completion_detail_different_user_not_found(self):
+        """
+        Tests video completions detail view GET request when the video completion
+        object is not assigned to the active user.
+        
+        Asserts:
+            - 404 Not found status.
+        """
+        self.video_completion.user = self.different_user
+        self.video_completion.save()
+        url = reverse('video-completion-detail', kwargs={'pk': self.video_completion.pk})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_video_completion_detail_not_authenticated_unauthorized(self):
+        """
+        Tests video completions detail view GET request without credentials.
+        
+        Asserts:
+            - 401 Unauthorized status.
+        """
+        self.client.logout()
+        url = reverse('video-completion-detail', kwargs={'pk': self.video_completion.pk})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_post_video_completion_list_ok(self):
+        """
+        Tests video completions list view POST request.
+        
+        Asserts:
+            - 201 Created status.
+            - Object user is request user.
+            - Absence of user field in response data.
+            - Presence of all serializer fields in response data.
+        """
+        url = reverse('video-completion-list')
+        response = self.client.post(url, data=self.generate_create_data(), format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.video_completion.user, self.user)
+        self.assertNotIn('user', response.data)
+        for key in ('id', 'video_id', 'current_time', 'updated_at'):
+            self.assertIn(key, response.data)
+
+    def test_post_video_completion_list_not_authenticated_unauthorized(self):
+        """
+        Tests video completions list view POST request.
+        
+        Asserts:
+            - 401 Unauthorized status.
+        """
+        self.client.logout()
+        url = reverse('video-completion-list')
+        response = self.client.post(url, data=self.generate_create_data(), format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_put_video_completion_detail_ok(self):
+        """
+        Tests video completions detail view PUT request.
+        
+        Asserts:
+            - 200 Ok status.
+            - Absence of user field in response data.
+            - Presence of all serializer fields in response data.
+        """
+        new_current_time = 3.21
+        url = reverse('video-completion-detail', kwargs={'pk': self.video_completion.pk})
+        response = self.client.put(url, data={'current_time': new_current_time}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('user', response.data)
+        for key in ('id', 'video_id', 'current_time', 'updated_at'):
+            self.assertIn(key, response.data)
+
+    def test_put_video_completion_foreign_not_found(self):
+        """
+        Tests video completions detail view PUT request for a foreign completion.
+        
+        Asserts:
+            - 404 Not found status.
+        """
+        new_current_time = 3.21
+        self.video_completion.user = self.different_user
+        self.video_completion.save()
+        url = reverse('video-completion-detail', kwargs={'pk': self.video_completion.pk})
+        response = self.client.put(url, data={'current_time': new_current_time}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

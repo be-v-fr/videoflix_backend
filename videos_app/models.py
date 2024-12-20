@@ -32,6 +32,6 @@ class Video(models.Model):
 class VideoCompletion(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
-    time = models.IntegerField()
-    # created_at
-    # updated_at
+    current_time = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
