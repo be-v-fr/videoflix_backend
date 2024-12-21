@@ -211,7 +211,7 @@ class VideoCompletionTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_post_video_completion_list_ok(self):
+    def test_post_video_completion_list_created(self):
         """
         Tests video completions list view POST request.
         
@@ -221,10 +221,37 @@ class VideoCompletionTests(APITestCase):
             - Absence of user field in response data.
             - Presence of all serializer fields in response data.
         """
+        self.video_completion.delete()
         url = reverse('video-completion-list')
         response = self.client.post(url, data=self.generate_create_data(), format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(self.video_completion.user, self.user)
+        self.assertNotIn('user', response.data)
+        for key in ('id', 'video_id', 'current_time', 'updated_at'):
+            self.assertIn(key, response.data)
+
+    def test_post_video_completion_list_already_exists_ok(self):
+        """
+        Tests video completions list view POST request when there is already
+        a video completion instance for this combination of user and video.
+        (The existing instance will be updated rather than creating a new one.)
+        
+        Asserts:
+            - 200 Ok status.
+            - Object user is request user.
+            - Object id is existing id.
+            - Current time has been updated.
+            - Absence of user field in response data.
+            - Presence of all serializer fields in response data.
+        """
+        url = reverse('video-completion-list')
+        data=self.generate_create_data()
+        data.update({'current_time': data['current_time'] - 0.1})
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.video_completion.user, self.user)
+        self.assertEqual(response.data['id'], self.video_completion.pk)
+        self.assertEqual(response.data['current_time'], data['current_time'])
         self.assertNotIn('user', response.data)
         for key in ('id', 'video_id', 'current_time', 'updated_at'):
             self.assertIn(key, response.data)
@@ -270,4 +297,35 @@ class VideoCompletionTests(APITestCase):
         self.video_completion.save()
         url = reverse('video-completion-detail', kwargs={'pk': self.video_completion.pk})
         response = self.client.put(url, data={'current_time': new_current_time}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_patch_video_completion_detail_ok(self):
+        """
+        Tests video completions detail view PATCH request.
+        
+        Asserts:
+            - 200 Ok status.
+            - Absence of user field in response data.
+            - Presence of all serializer fields in response data.
+        """
+        new_current_time = 3.21
+        url = reverse('video-completion-detail', kwargs={'pk': self.video_completion.pk})
+        response = self.client.patch(url, data={'current_time': new_current_time}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn('user', response.data)
+        for key in ('id', 'video_id', 'current_time', 'updated_at'):
+            self.assertIn(key, response.data)
+
+    def test_patch_video_completion_foreign_not_found(self):
+        """
+        Tests video completions detail view PATCH request for a foreign completion.
+        
+        Asserts:
+            - 404 Not found status.
+        """
+        new_current_time = 3.21
+        self.video_completion.user = self.different_user
+        self.video_completion.save()
+        url = reverse('video-completion-detail', kwargs={'pk': self.video_completion.pk})
+        response = self.client.patch(url, data={'current_time': new_current_time}, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

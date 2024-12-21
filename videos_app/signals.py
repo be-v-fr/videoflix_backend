@@ -1,6 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
 import django_rq
+from videoflix import settings
 from .models import Video
 from .utils import delete_source_video
 from .tasks import set_video_duration, convert_video_to_hls
@@ -9,7 +10,7 @@ import shutil
 
 @receiver(post_save, sender=Video) 
 def create_video(sender, instance, created, **kwargs):
-    if created:
+    if created and not settings.TESTING:
         queue = django_rq.get_queue('default', autocommit=True)
         try:
             duration_task = queue.enqueue(set_video_duration, video_obj=instance)

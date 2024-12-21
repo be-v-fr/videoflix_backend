@@ -35,3 +35,8 @@ class VideoCompletion(models.Model):
     current_time = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'video'], name='unique_user_video')
+        ]
