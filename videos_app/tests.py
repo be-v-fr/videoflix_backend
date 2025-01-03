@@ -28,7 +28,7 @@ class VideosTests(APITestCase):
         self.mock_video = Video.objects.create(
             title='testtitle',
             description='testdescription',
-            genre=Video.GENRES[0],
+            genre=Video.DOCUMENTARY,
             video_upload=self.mock_video_file,
             thumbnail=self.mock_thumb_file,
             duration_in_seconds=7.65)

@@ -8,11 +8,14 @@ class Video(models.Model):
     """
     Video model containing file, thumbnail and metadata.
     """
-    GENRES = [
-        ('DOCUMENTARY', _('Documentary')),
-        ('DRAMA', _('Drama')),
-        ('ROMANCE', _('Romance'))
-    ]
+    DOCUMENTARY = 'Documentary'
+    DRAMA = 'Drama'
+    ROMANCE = 'Romance'
+    GENRES = {
+        DOCUMENTARY: DOCUMENTARY,
+        DRAMA: DRAMA,
+        ROMANCE: ROMANCE,
+    }
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=1024)
     genre = models.CharField(max_length=32, choices=GENRES, blank=True, null=True)
@@ -35,7 +38,10 @@ class Video(models.Model):
         if os.path.isfile(os.path.join(self.video_files_abs_dir, filename)):
             return os.path.join(settings.MEDIA_URL, self.video_files_rel_dir, filename)
         raise FileNotFoundError(f"Playlist file '{filename}' does not exist in directory for video ID {self.pk}.")
-    
+
+    # def display_genre(self):
+    #     return dict(self.GENRES).get(self.genre, self.genre)
+
 class VideoCompletion(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     video = models.ForeignKey(Video, on_delete=models.CASCADE)

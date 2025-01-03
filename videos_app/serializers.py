@@ -2,11 +2,15 @@ from rest_framework import serializers
 from .models import Video, VideoCompletion
 
 class VideoSerializer(serializers.ModelSerializer):
+    # genre_display = serializers.SerializerMethodField()
     playlist_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Video
         fields = ['id', 'title', 'description', 'genre', 'created_at', 'playlist_url', 'duration_in_seconds', 'thumbnail']
+
+    # def get_genre_display(self, obj):
+    #     return obj.display_genre()
 
     def get_playlist_url(self, obj):
         request = self.context.get('request')
