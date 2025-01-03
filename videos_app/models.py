@@ -7,8 +7,14 @@ class Video(models.Model):
     """
     Video model containing file, thumbnail and metadata.
     """
+    GENRES = {
+        'DOCUMENTARY': 'Documentary',
+        'DRAMA': 'Drama',
+        'ROMANCE': 'Romance'
+    }
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=1024)
+    genre = models.CharField(max_length=32, choices=GENRES, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     video_upload = models.FileField(upload_to='videos', blank=True, null=True)
     thumbnail = models.FileField(upload_to='video_thumbs', blank=True, null=True)

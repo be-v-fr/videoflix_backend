@@ -28,6 +28,7 @@ class VideosTests(APITestCase):
         self.mock_video = Video.objects.create(
             title='testtitle',
             description='testdescription',
+            genre=Video.GENRES['DOCUMENTARY'],
             video_upload=self.mock_video_file,
             thumbnail=self.mock_thumb_file,
             duration_in_seconds=7.65)
@@ -58,7 +59,7 @@ class VideosTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn('file', response.data)
-        for key in ('id', 'title', 'description', 'created_at', 'playlist_url', 'duration_in_seconds', 'thumbnail'):
+        for key in ('id', 'title', 'description', 'genre', 'created_at', 'playlist_url', 'duration_in_seconds', 'thumbnail'):
             self.assertIn(key, response.data[0])
             
     def test_get_video_list_not_authenticated_unauthorized(self):
@@ -86,7 +87,7 @@ class VideosTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn('file', response.data)
-        for key in ('id', 'title', 'description', 'created_at', 'playlist_url', 'duration_in_seconds', 'thumbnail'):
+        for key in ('id', 'title', 'description', 'genre', 'created_at', 'playlist_url', 'duration_in_seconds', 'thumbnail'):
             self.assertIn(key, response.data)
         
     def test_get_video_detail_not_authenticated_unauthorized(self):
