@@ -1,17 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.utils.translation import gettext as _
 import os
 
 class Video(models.Model):
     """
     Video model containing file, thumbnail and metadata.
     """
-    GENRES = {
-        'DOCUMENTARY': 'Documentary',
-        'DRAMA': 'Drama',
-        'ROMANCE': 'Romance'
-    }
+    GENRES = [
+        ('DOCUMENTARY', _('Documentary')),
+        ('DRAMA', _('Drama')),
+        ('ROMANCE', _('Romance'))
+    ]
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=1024)
     genre = models.CharField(max_length=32, choices=GENRES, blank=True, null=True)
