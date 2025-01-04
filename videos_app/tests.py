@@ -14,7 +14,7 @@ class VideosTests(APITestCase):
     def create_temp_dir(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.override_settings = override_settings(MEDIA_ROOT=self.temp_dir.name)
-        self.override_settings.enable()  
+        self.override_settings.enable()
 
     def setUp(self):
         cache.clear()
@@ -28,7 +28,7 @@ class VideosTests(APITestCase):
         self.mock_video = Video.objects.create(
             title='testtitle',
             description='testdescription',
-            genre=Video.DOCUMENTARY,
+            genre=Video.GENRES[0],
             video_upload=self.mock_video_file,
             thumbnail=self.mock_thumb_file,
             duration_in_seconds=7.65)
@@ -87,6 +87,7 @@ class VideosTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn('file', response.data)
+        print(response.data)
         for key in ('id', 'title', 'description', 'genre', 'created_at', 'playlist_url', 'duration_in_seconds', 'thumbnail'):
             self.assertIn(key, response.data)
         
