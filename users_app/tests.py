@@ -218,15 +218,15 @@ class UserTests(APITestCase):
         
         Asserts:
             - 200 OK status.
-            - Username is not in response.
-            - Required fields are in response.
+            - Username and email are not in response.
+            - Required fields (ID only) is in response.
         """
         url = reverse('user')
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotIn('username', response.data)
-        for key in ('id', 'email'):
-            self.assertIn(key, response.data)
+        for key in ('username', 'email'):
+            self.assertNotIn(key, response.data)
+        self.assertIn('id', response.data)
             
     def test_get_user_invalid_token(self):
         """
