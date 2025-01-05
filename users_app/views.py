@@ -43,12 +43,15 @@ class RegistrationView(APIView):
     
 class UserView(APIView):
     """
-    API endpoint for user registration.
+    API endpoint for user profile access.
     """
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """
+        Retrieves user profile.
+        """
         serializer = UserSerializer(instance=request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

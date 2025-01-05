@@ -34,6 +34,7 @@ class LoginSerializer(serializers.Serializer):
 class RegistrationSerializer(serializers.Serializer):
     """
     Serializer for user registration, handling email and password validation.
+    Also creates user instance and corresponding account activation by email.
     """
     email = serializers.EmailField(max_length=63)
     password = serializers.CharField(max_length=63, write_only=True)

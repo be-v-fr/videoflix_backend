@@ -33,11 +33,17 @@ class UserAction(models.Model):
         return f"{self.user.email} ({self.created_at})"
 
     def is_token_expired(self):
+        """
+        Checks token expiration date.
+        """
         expiration_time = self.created_at + timedelta(hours=24)
         return now() > expiration_time
 
     @classmethod
     def create_with_token(cls, user, token_generator_class):
+        """
+        Creates class instance from respective user by using a token generator.
+        """
         token = token_generator_class().make_token(user)
         instance = cls(user=user, token=token)
         instance.save()
@@ -45,6 +51,9 @@ class UserAction(models.Model):
 
     @classmethod
     def delete_all_for_user(cls, user):
+        """
+        Deletes all class instances for the respective user.
+        """
         instances = cls.objects.filter(user=user)
         instances.delete()
 
@@ -54,6 +63,9 @@ class AccountActivation(UserAction):
     """
     @classmethod
     def create_with_email(cls, user):
+        """
+        Creates class instance and sends corresponding email to the respective user.
+        """
         instance = cls.create_with_token(user, AccountActivationTokenGenerator)
         activation_url = os.environ['FRONTEND_BASE_URL'] + 'auth/signup/activate/' + instance.token
         send_account_activation_email(email_address=instance.user.email, activation_url=activation_url)
@@ -65,6 +77,9 @@ class PasswordReset(UserAction):
     """
     @classmethod
     def create_with_email(cls, user):
+        """
+        Creates class instance and sends corresponding email to the respective user.
+        """
         instance = cls.create_with_token(user, PasswordResetTokenGenerator)
         reset_url = os.environ['FRONTEND_BASE_URL'] + 'auth/pwReset/perform/' + instance.token
         send_password_reset_email(email_address=instance.user.email, reset_url=reset_url)
