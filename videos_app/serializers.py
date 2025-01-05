@@ -2,6 +2,9 @@ from rest_framework import serializers
 from .models import Video, VideoCompletion
 
 class VideoSerializer(serializers.ModelSerializer):
+    """
+    Serializer for a video/video metadata, including URLs to access the streaming playlist and the video thumbnail.
+    """
     genre = serializers.SerializerMethodField()
     playlist_url = serializers.SerializerMethodField()
 
@@ -19,6 +22,9 @@ class VideoSerializer(serializers.ModelSerializer):
         return obj.playlist_url
     
 class VideoCompletionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for video completion.
+    """
     video_id = serializers.PrimaryKeyRelatedField(queryset=Video.objects.all(), source='video')
     updated_at = serializers.DateTimeField(read_only=True)
 

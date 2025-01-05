@@ -42,6 +42,9 @@ class Video(models.Model):
     #     return dict(self.GENRES).get(self.genre, self.genre)
 
 class VideoCompletion(models.Model):
+    """
+    Video completion model representing the playback state of a video for a user.
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
     current_time = models.FloatField()

@@ -48,6 +48,11 @@ class VideoCompletionViewSet(ModelViewSet):
         return VideoCompletion.objects.filter(user=current_user)
     
     def create(self, request, *args, **kwargs):
+        """
+        Customing create method dynamically covering both creation und update of a
+        video completion instance, depending on whether or not a video completion
+        instance already exists for the requested combination of video and user.
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         instance, created = VideoCompletion.objects.update_or_create(

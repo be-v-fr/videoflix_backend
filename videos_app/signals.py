@@ -10,6 +10,9 @@ import shutil
 
 @receiver(post_save, sender=Video) 
 def create_video(sender, instance, created, **kwargs):
+    """
+    Enqueues routine tasks upon video creation regarding the video duration and conversion to HLS format.
+    """
     if created and not settings.TESTING:
         queue = django_rq.get_queue('default', autocommit=True)
         try:
@@ -20,6 +23,9 @@ def create_video(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=Video) 
 def delete_video(sender, instance, *args, **kwargs):
+    """
+    Deletes associated video content files upon deletion of a video model instance.
+    """
     delete_source_video(instance)
     video_files_abs_dir = instance.video_files_abs_dir
     if os.path.isdir(video_files_abs_dir):
