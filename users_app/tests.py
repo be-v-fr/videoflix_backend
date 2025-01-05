@@ -12,7 +12,7 @@ os.environ.setdefault('FRONTEND_BASE_URL', 'http://localhost:4200/')
 
 class AuthTests(APITestCase):
     """
-    Base test setup class for creating test users, profiles, and authentication tokens.
+    Authentication tests class testing user registration and login.
     """    
     def setUp(self):
         """
@@ -131,7 +131,13 @@ class AuthTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
 class AccountActivationTests(APITestCase):
+    """
+    Account activation test class testing account activation after user signup.
+    """
     def setUp(self):
+        """
+        Setup method extending authentication setup by setting user activity and generating activation objects.
+        """
         AuthTests.setUp(self)
         self.user.is_active = False
         self.user.save()
@@ -208,7 +214,13 @@ class AccountActivationTests(APITestCase):
         self.assertFalse(AccountActivation.objects.filter(user=self.user).exists())
 
 class UserTests(APITestCase):
+    """
+    User test class testing user profile access.
+    """
     def setUp(self):
+        """
+        Setup method extending authentication setup by logging in the user.
+        """  
         AuthTests.setUp(self=self)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
       
@@ -253,7 +265,13 @@ class UserTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         
 class PasswordResetTests(APITestCase):
+    """
+    Password reset test class testing password resetting.
+    """
     def setUp(self):
+        """
+        Setup method extending authentication setup by generating password reset objects.
+        """  
         AuthTests.setUp(self)
         self.pw_reset_token = PasswordResetTokenGenerator().make_token(self.user)
         self.pw_reset_obj = PasswordReset.objects.create(user=self.user, token=self.pw_reset_token)

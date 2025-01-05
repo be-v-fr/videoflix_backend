@@ -11,12 +11,21 @@ import os
 import tempfile
 
 class VideosTests(APITestCase):
+    """
+    Videos test class testing video metadata requests.
+    """
     def create_temp_dir(self):
+        """
+        Creates temporary directory to temporarily save test files in.
+        """
         self.temp_dir = tempfile.TemporaryDirectory()
         self.override_settings = override_settings(MEDIA_ROOT=self.temp_dir.name)
         self.override_settings.enable()
 
     def setUp(self):
+        """
+        Setup method creating an authenticated user and a video object using mock files.
+        """
         cache.clear()
         self.create_temp_dir()
         self.user = User.objects.create_user(username='testuser', email='testemail@email.com', password='testpassword')
@@ -35,6 +44,9 @@ class VideosTests(APITestCase):
         self.create_mock_playlist()
 
     def create_mock_playlist(self):
+        """
+        Creates mock playlist in temporary directory.
+        """
         video_dir = os.path.join(self.temp_dir.name, 'videos', f'{self.mock_video.pk}_testtitle')
         os.makedirs(video_dir, exist_ok=True)
         playlist_path = os.path.join(video_dir, f'{self.mock_video.pk}_master.m3u8')
@@ -42,6 +54,9 @@ class VideosTests(APITestCase):
             f.write("this is not a playlist file!")
         
     def tearDown(self):
+        """
+        Resets the system to the state before testing.
+        """
         self.override_settings.disable()
         self.temp_dir.cleanup()
         cache.clear()        
@@ -104,16 +119,28 @@ class VideosTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class VideoCompletionTests(APITestCase):
+    """
+    Video completion test class testing playback state requests.
+    """
     def generate_create_data(self):
+        """
+        Returns data to create a video completion object.
+        """
         return {
             'video_id': self.mock_video.pk,
             'current_time': 2.34
         }
 
     def create_temp_dir(self):
+        """
+        Copies temporary directory creation from videos tests class.
+        """
         VideosTests.create_temp_dir(self=self)
 
     def setUp(self):
+        """
+        Extends videos tests setup by creating a video completion object and introducing a second user. 
+        """
         VideosTests.setUp(self=self)
         self.different_user = User.objects.create_user(username='testuser2', email='testemail2@email.com', password='testpassword')
         self.video_completion = VideoCompletion.objects.create(
@@ -122,9 +149,15 @@ class VideoCompletionTests(APITestCase):
         )
 
     def create_mock_playlist(self):
+        """
+        Copies mock playlist creation from videos tests class.
+        """
         VideosTests.create_mock_playlist(self=self)
         
     def tearDown(self):
+        """
+        Copies teardown method from videos tests class.
+        """
         VideosTests.tearDown(self=self)  
 
     def test_get_video_completion_list_ok(self):
