@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os, sys
 from pathlib import Path
-from secret_keys import REDIS_PW
+from secret_keys import REDIS_PW, DB_ADMIN_NAME, DB_ADMIN_PW
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -140,10 +140,17 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+	'default': {
+		'ENGINE': 'django.db.backends.postgresql',
+        'OPTIONS': {
+                'options': '-c search_path=public'
+            },
+		'NAME': 'videoflix',
+		'USER': DB_ADMIN_NAME,
+		'PASSWORD': DB_ADMIN_PW,
+		'HOST': 'localhost',
+		'PORT': '',
+	}
 }
 
 

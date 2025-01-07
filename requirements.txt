@@ -12,6 +12,7 @@ django-rq==2.10.2
 djangorestframework==3.15.2
 ffmpeg==1.4
 ffprobe==0.5
+psycopg2-binary==2.9.10
 python-dateutil==2.9.0.post0
 redis==5.2.0
 rq==1.16.2
