@@ -2,8 +2,9 @@ from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, filters
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -21,6 +22,8 @@ class VideoViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    ordering_fields = ['created_at']
 
     @method_decorator(cache_page(CACHE_TTL))
     def list(self, request, *args, **kwargs):
@@ -37,6 +40,8 @@ class VideoCompletionViewSet(ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsOwnerOrStaff]
     serializer_class = VideoCompletionSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    ordering_fields = ['updated_at']
 
     def get_queryset(self):
         """
