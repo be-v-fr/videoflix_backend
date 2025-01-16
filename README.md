@@ -27,3 +27,10 @@ Commands
 python manage.py rqworker --worker-class videoflix.simpleworker.SimpleWorker default
 - Start worker in Linux:
 python manage.py rqworker default
+
+Content setup
+=============
+- Create guest user using
+    - an arbitrary username
+    - the email "guest@videoflix.com" and
+    - the password "gu3stl0g1n"

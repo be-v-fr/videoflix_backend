@@ -68,7 +68,7 @@ class AccountActivation(UserAction):
         """
         instance = cls.create_with_token(user, AccountActivationTokenGenerator)
         activation_url = os.environ['FRONTEND_BASE_URL'] + 'auth/signup/activate/' + instance.token
-        send_account_activation_email(email_address=instance.user.email, activation_url=activation_url)
+        send_account_activation_email(recipient=instance.user.email, activation_url=activation_url)
         return instance
 
 class PasswordReset(UserAction):
@@ -82,5 +82,5 @@ class PasswordReset(UserAction):
         """
         instance = cls.create_with_token(user, PasswordResetTokenGenerator)
         reset_url = os.environ['FRONTEND_BASE_URL'] + 'auth/pwReset/perform/' + instance.token
-        send_password_reset_email(email_address=instance.user.email, reset_url=reset_url)
+        send_password_reset_email(recipient=instance.user.email, reset_url=reset_url)
         return instance

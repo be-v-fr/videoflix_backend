@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os, sys
 from pathlib import Path
-from secret_keys import REDIS_PW, DB_ADMIN_NAME, DB_ADMIN_PW
+from secret_keys import REDIS_PW, EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DB_ADMIN_NAME, DB_ADMIN_PW
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'import_export',
     'users_app',
     'videos_app.apps.VideosAppConfig',
+    'django.contrib.sites',
 ]
 
 if not TESTING:
@@ -117,12 +118,15 @@ ROOT_URLCONF = 'videoflix.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+           os.path.join(BASE_DIR, 'users_app', 'templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.static',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -134,7 +138,13 @@ ASGI_APPLICATION = 'videoflix.asgi.application'
 
 WSGI_APPLICATION = 'videoflix.wsgi.application'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = EMAIL_HOST
+EMAIL_USE_TLS = False
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
 
 
 # Database
@@ -191,6 +201,9 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/staticfiles')
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -226,3 +239,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ]
 }
+
+# django.contrib.sites configuration
+
+SITE_ID = 1
