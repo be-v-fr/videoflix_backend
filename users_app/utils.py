@@ -2,7 +2,6 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.sites.models import Site
-from email.mime.image import MIMEImage
 from email.mime.base import MIMEBase
 from email import encoders
 
@@ -16,14 +15,21 @@ def get_auth_response_data(user, token):
         'user_id': user.pk,
     }
 
+
 def get_domain():
+    """
+    Returns the current domain.
+    In debug mode, a hard-coded value is being used.
+    """
     if settings.DEBUG:
         return 'http://localhost:8000'
-    else:
-        current_site = Site.objects.get_current()
-        return current_site.domain
+    current_site = Site.objects.get_current()
+    return current_site.domain
 
 def generate_email_base_data(recipient):
+    """
+    Returns basic data required for every email template.
+    """
     return {
         'recipient': recipient.split('@')[0]
     } 
@@ -42,6 +48,18 @@ def render_email_content(template_name, email_data):
     except:
         raise Exception("Email rendering failed. Please check email template names and paths.")
     
+def prepare_logo(svg_file):
+    """
+    Prepares the logo SVG to be displayed as an inline image in an email,
+    defining its MIME type and Content-ID.
+    """
+    mime_svg = MIMEBase('image', 'svg+xml')
+    mime_svg.set_payload(svg_file.read())
+    encoders.encode_base64(mime_svg)
+    mime_svg.add_header('Content-ID', '<logo>')
+    mime_svg.add_header('Content-Disposition', 'inline', filename='logo.svg')
+    return mime_svg
+    
 def send_email_with_data(template_name, recipient, email_data):
     """
     Sends an email to the specified recipient using the specified template
@@ -56,11 +74,7 @@ def send_email_with_data(template_name, recipient, email_data):
     )
     msg.attach_alternative(html, "text/html")
     with open('static/img/logo.svg', 'rb') as svg_file:
-        mime_svg = MIMEBase('image', 'svg+xml')
-        mime_svg.set_payload(svg_file.read())
-        encoders.encode_base64(mime_svg)
-        mime_svg.add_header('Content-ID', '<logo>')
-        mime_svg.add_header('Content-Disposition', 'inline', filename='logo.svg')
+        mime_svg = prepare_logo(svg_file)
         msg.attach(mime_svg)
     msg.send()
 
