@@ -15,7 +15,6 @@ def get_auth_response_data(user, token):
         'user_id': user.pk,
     }
 
-
 def get_domain():
     """
     Returns the current domain.
@@ -60,14 +59,14 @@ def prepare_logo(svg_file):
     mime_svg.add_header('Content-Disposition', 'inline', filename='logo.svg')
     return mime_svg
     
-def send_email_with_data(template_name, recipient, email_data):
+def send_email_with_data(subject, template_name, recipient, email_data):
     """
     Sends an email to the specified recipient using the specified template
     and filling it with customizable data.
     """
     text, html = render_email_content(template_name, email_data)
     msg = EmailMultiAlternatives(
-        "Confirm your email",
+        subject,
         text,
         "noreply@bengt-fruechtenicht.de",
         [recipient],
@@ -85,7 +84,7 @@ def send_account_activation_email(recipient, activation_url):
     """
     email_data = generate_email_base_data(recipient)
     email_data.update({'activation_url': activation_url})
-    send_email_with_data('account_activation', recipient, email_data)
+    send_email_with_data('Confirm your email', 'account_activation', recipient, email_data)
 
 def send_password_reset_email(recipient, reset_url):
     """
@@ -94,4 +93,4 @@ def send_password_reset_email(recipient, reset_url):
     """
     email_data = generate_email_base_data(recipient)
     email_data.update({'reset_url': reset_url})
-    send_email_with_data('reset_password', recipient, email_data)
+    send_email_with_data('Reset your password', 'reset_password', recipient, email_data)
