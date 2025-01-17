@@ -1,0 +1,10 @@
+videoflix_backend
+=================
+
+.. toctree::
+   :maxdepth: 4
+
+   manage
+   users_app
+   videoflix
+   videos_app

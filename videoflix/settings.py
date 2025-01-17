@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os, sys
 from pathlib import Path
-from secret_keys import REDIS_PW, EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DB_ADMIN_NAME, DB_ADMIN_PW
+from secret_keys import REDIS_PW, EMAIL_HOST, EMAIL_USER, EMAIL_PASSWORD, DB_ADMIN_NAME, DB_ADMIN_PW
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,8 +143,8 @@ EMAIL_HOST = EMAIL_HOST
 EMAIL_USE_TLS = False
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = EMAIL_HOST_USER
-EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
+EMAIL_HOST_USER = EMAIL_USER
+EMAIL_HOST_PASSWORD = EMAIL_PASSWORD
 
 
 # Database

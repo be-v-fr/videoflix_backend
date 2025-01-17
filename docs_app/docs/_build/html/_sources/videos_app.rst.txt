@@ -1,0 +1,101 @@
+videos\_app package
+===================
+
+Submodules
+----------
+
+videos\_app.admin module
+------------------------
+
+.. automodule:: videos_app.admin
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.apps module
+-----------------------
+
+.. automodule:: videos_app.apps
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.models module
+-------------------------
+
+.. automodule:: videos_app.models
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.permissions module
+------------------------------
+
+.. automodule:: videos_app.permissions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.serializers module
+------------------------------
+
+.. automodule:: videos_app.serializers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.signals module
+--------------------------
+
+.. automodule:: videos_app.signals
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.tasks module
+------------------------
+
+.. automodule:: videos_app.tasks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.tests module
+------------------------
+
+.. automodule:: videos_app.tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.urls module
+-----------------------
+
+.. automodule:: videos_app.urls
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.utils module
+------------------------
+
+.. automodule:: videos_app.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+videos\_app.views module
+------------------------
+
+.. automodule:: videos_app.views
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: videos_app
+   :members:
+   :undoc-members:
+   :show-inheritance:
