@@ -102,7 +102,6 @@ class VideosTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn('file', response.data)
-        print(response.data)
         for key in ('id', 'title', 'description', 'genre', 'created_at', 'playlist_url', 'duration_in_seconds', 'thumbnail'):
             self.assertIn(key, response.data)
         

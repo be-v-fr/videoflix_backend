@@ -16,7 +16,7 @@ System setup
 Redis configuration
 ===================
 - Activate `requirepass` in Redis configuration file
-- Save your Redis password as `REDIS_PW`
+- Save your Redis password as `REDIS_PW` in `secret_keys.py`
 
 Postgres setup
 ==============
@@ -32,6 +32,10 @@ Postgres setup
 `psql -c "ALTER ROLE DB_ADMIN_NAME SET timezone TO 'UTC'"`\
 `psql -c "GRANT ALL PRIVILEGES ON SCHEMA public TO DB_ADMIN_NAME;"`\
 `psql -c "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO DB_ADMIN_NAME;"`
+
+- And to allow creating a test database when running automatic tests:
+
+`psql -c "ALTER USER DB_ADMIN_NAME CREATEDB;"`
 
 Setup email backend
 ===================
@@ -60,6 +64,11 @@ Basic commands
 `python manage.py rqworker --worker-class videoflix.simpleworker.SimpleWorker default`
 - Run Django server:\
 `python manage.py runserver`
+
+Test coverage
+=============
+- To measure test coverage, run `coverage run manage.py test`.
+- To report the test coverage, run `coverage report`.
 
 Documentation
 =============
