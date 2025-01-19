@@ -25,7 +25,7 @@ def generate_playlist_basename(video_obj, height):
     """
     Returns a playlist basename designating the video instance and the vertical resolution.
     """
-    return f'{video_obj.pk}_{height}p'
+    return f"{video_obj.pk}_{height}p"
 
 def generate_single_resolution_cmd(video_obj, index, resolution):
     """

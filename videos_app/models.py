@@ -27,7 +27,7 @@ class Video(models.Model):
     def video_files_rel_dir(self):
         clean_title = self.title.strip()
         formatted_title = clean_title.replace(' ', '_')
-        return os.path.join('videos', f'{self.pk}_{formatted_title}')
+        return os.path.join('videos', f"{self.pk}_{formatted_title}")
 
     @property
     def video_files_abs_dir(self):
@@ -35,13 +35,13 @@ class Video(models.Model):
     
     @property
     def playlist_rel_url(self):
-        filename = f'{self.pk}_master.m3u8'
+        filename = f"{self.pk}_master.m3u8"
         if os.path.isfile(os.path.join(self.video_files_abs_dir, filename)):
             return os.path.join(settings.MEDIA_URL, self.video_files_rel_dir, filename)
         raise FileNotFoundError(f"Playlist file '{filename}' does not exist in directory for video ID {self.pk}.")
     
     def __str__(self):
-        return f'({self.pk}) {self.title}'
+        return f"({self.pk}) {self.title}"
 
 class VideoCompletion(models.Model):
     """
@@ -59,4 +59,4 @@ class VideoCompletion(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.user.username}: {self.video.title}'
+        return f"{self.user.username}: {self.video.title}"

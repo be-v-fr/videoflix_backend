@@ -47,9 +47,9 @@ class VideosTests(APITestCase):
         """
         Creates mock playlist in temporary directory.
         """
-        video_dir = os.path.join(self.temp_dir.name, 'videos', f'{self.mock_video.pk}_testtitle')
+        video_dir = os.path.join(self.temp_dir.name, 'videos', f"{self.mock_video.pk}_testtitle")
         os.makedirs(video_dir, exist_ok=True)
-        playlist_path = os.path.join(video_dir, f'{self.mock_video.pk}_master.m3u8')
+        playlist_path = os.path.join(video_dir, f"{self.mock_video.pk}_master.m3u8")
         with open(playlist_path, 'w') as f:
             f.write("this is not a playlist file!")
         

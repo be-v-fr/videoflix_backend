@@ -30,14 +30,14 @@ def create_playlists(video_obj):
     master_playlist_lines = ["#EXTM3U", "#EXT-X-VERSION:3"]
     resolution_lookup = {f"{res['height']}p": res['bitrate'] * 1000 for res in RESOLUTIONS}
     for res in RESOLUTIONS:
-        resolution = f'{res['height']}p'
-        playlist_filename = f'{generate_playlist_basename(video_obj, res['height'])}.m3u8'
+        resolution = f"{res['height']}p"
+        playlist_filename = f"{generate_playlist_basename(video_obj, res['height'])}.m3u8"
         bandwidth = resolution_lookup.get(resolution, 1000000)
         master_playlist_lines.append(
             f"#EXT-X-STREAM-INF:BANDWIDTH={bandwidth},RESOLUTION={resolution}"
         )
         master_playlist_lines.append(playlist_filename)
-    output_file = f'{video_obj.video_files_abs_dir}/{video_obj.pk}_master.m3u8'
+    output_file = f"{video_obj.video_files_abs_dir}/{video_obj.pk}_master.m3u8"
     with open(output_file, "w") as f:
         f.write("\n".join(master_playlist_lines) + "\n")
 
