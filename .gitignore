@@ -130,5 +130,4 @@ secret_keys*
 
 # App content
 
-static/
 content.json

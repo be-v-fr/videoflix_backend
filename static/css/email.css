@@ -1,0 +1,7 @@
+:root {
+    --purple: #2E3EDF;
+}
+
+.purple {
+    color: var(--purple);
+}
