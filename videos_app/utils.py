@@ -31,7 +31,7 @@ def generate_single_resolution_cmd(video_obj, index, resolution):
     """
     Returns a command to convert a video upload to a single selected resolution and bitrate.
     """
-    base_name = f'{video_obj.video_files_abs_dir}/{generate_playlist_basename(video_obj, resolution['height'])}'
+    base_name = f"{video_obj.video_files_abs_dir}/{generate_playlist_basename(video_obj, resolution['height'])}"
     segment_filename = base_name + '_%03d.ts'
     playlist_filename = base_name + '.m3u8'
     return [
