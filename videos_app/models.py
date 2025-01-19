@@ -39,6 +39,9 @@ class Video(models.Model):
         if os.path.isfile(os.path.join(self.video_files_abs_dir, filename)):
             return os.path.join(settings.MEDIA_URL, self.video_files_rel_dir, filename)
         raise FileNotFoundError(f"Playlist file '{filename}' does not exist in directory for video ID {self.pk}.")
+    
+    def __str__(self):
+        return f'({self.pk}) {self.title}'
 
 class VideoCompletion(models.Model):
     """
@@ -54,3 +57,6 @@ class VideoCompletion(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['user', 'video'], name='unique_user_video')
         ]
+
+    def __str__(self):
+        return f'{self.user.username}: {self.video.title}'
