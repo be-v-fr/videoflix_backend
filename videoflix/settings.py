@@ -34,7 +34,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '34.159.226.199'
+    '34.159.226.199',
+    'bengt-fruechtenicht-servers.de'
 ]
 
 CORS_ALLOWED_ORIGINS = [
