@@ -27,6 +27,8 @@ Postgres setup
 `psql -c "CREATE DATABASE videoflix"`\
 `psql -c "CREATE USER DB_ADMIN_NAME WITH PASSWORD 'DB_ADMIN_PW'"`\
 `psql -d videoflix -c "CREATE SCHEMA public AUTHORIZATION DB_ADMIN_NAME"`\
+(in case the schema "public" already exists:\
+`psql -d videoflix -c "ALTER SCHEMA public OWNER TO DB_ADMIN_NAME;"`)\
 `psql -c "ALTER ROLE DB_ADMIN_NAME SET client_encoding TO 'utf8'"`\
 `psql -c "ALTER ROLE DB_ADMIN_NAME SET default_transaction_isolation TO 'read committed'"`\
 `psql -c "ALTER ROLE DB_ADMIN_NAME SET timezone TO 'UTC'"`\
