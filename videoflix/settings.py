@@ -219,7 +219,7 @@ RQ_QUEUES = {
         'HOST': 'localhost',
         'PORT': 6379,
         'DB': 0,
-        'DEFAULT_TIMEOUT': 360,
+        'DEFAULT_TIMEOUT': 3600,
         'PASSWORD': REDIS_PW,
     }
 }
