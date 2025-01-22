@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os, sys
 from pathlib import Path
-from secret_keys import REDIS_PW, EMAIL_HOST, EMAIL_USER, EMAIL_PASSWORD, DB_ADMIN_NAME, DB_ADMIN_PW
+from secret_keys import DJANGO_SECRET_KEY, REDIS_PW, EMAIL_HOST, EMAIL_USER, EMAIL_PASSWORD, DB_ADMIN_NAME, DB_ADMIN_PW
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,10 +26,10 @@ TESTING = 'test' in sys.argv
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-53ql(!tfv4gf3hw$et4&tr)ibky0^^=@vr_!&psx#t$)d^gee4'
+SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',

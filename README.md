@@ -50,6 +50,11 @@ Setup email backend
   to `secret_keys.py`.
 - For development purposes, you can replace the `EMAIL_BACKEND` value with `"django.core.mail.backends.console.EmailBackend"`. That way, the backend will simply show the email content in the console instead of sending an actual email. This will not require any further configuration.
 
+Django setup
+============
+- Add a `DJANGO_SECRET_KEY` to `secret_keys.py` to set the `settings.SECRET_KEY` property.
+    - You can generate a key over here: https://djecrety.ir/
+
 Content setup
 =============
 - Upload videos using the Django admin interface while running a worker in addition to the Django server.
