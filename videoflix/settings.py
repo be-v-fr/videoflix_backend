@@ -35,7 +35,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '34.159.226.199',
-    'bengt-fruechtenicht-servers.de'
+    'api.videoflix.bengt-fruechtenicht.de'
 ]
 
 CORS_ALLOWED_ORIGINS = [
