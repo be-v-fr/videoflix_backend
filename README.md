@@ -1,3 +1,5 @@
+*Looking for the Videoflix frontend repo? Look no further:* https://github.com/be-v-fr/videoflix_frontend
+
 Videoflix (backend) is a Django backend providing a video streaming platform.
 The platform provides
 - an API
